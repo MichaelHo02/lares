@@ -31,7 +31,7 @@ interface ZoomControlsProps {
 
 const ICON_BUTTON =
   "flex size-10 items-center justify-center rounded-pill bg-surface text-ink " +
-  "shadow-[inset_0_0_0_1px_#dfdfdf] transition-colors hover:bg-subtle-hover " +
+  "shadow-ring-hairline transition-colors hover:bg-subtle-hover " +
   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink " +
   "disabled:pointer-events-none disabled:text-ink-3";
 

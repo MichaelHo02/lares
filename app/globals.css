@@ -90,6 +90,12 @@
   /* ---- Shadows (used sparingly) ---- */
   --shadow-sheet: 0 4px 16px #0000001a;
   --shadow-over-image: 0 1px 4px rgba(17, 17, 17, 0.55);
+  --shadow-ring-hairline: inset 0 0 0 1px var(--color-hairline);
+  --shadow-ring-ink: inset 0 0 0 1px var(--color-ink);
+  --shadow-ring-ink-thick: inset 0 0 0 2px var(--color-ink);
+  --shadow-ring-subtle: inset 0 0 0 1px var(--color-ink-4);
+  --shadow-ring-negative: inset 0 0 0 2px var(--color-negative);
+  --shadow-ring-disabled: inset 0 0 0 1px var(--color-disabled-bg);
 
   /* ---- Type scale ---- */
   --text-display-xl: 4.5rem;

@@ -31,13 +31,15 @@ export default function Home() {
           on its own rather than pushing the plan short. */}
       <main className="flex min-h-0 min-w-0 flex-1 flex-col gap-3">
         <header>
-          <h1 className="text-heading-xl font-bold">Lares</h1>
-          <p className="text-body-m text-ink-2 tabular-nums">
+          <h1 className="text-heading-xl font-bold text-ink">
+            <span className="rounded-badge bg-accent-yellow px-2">Lares</span>
+          </h1>
+          <p className="mt-1 text-body-m text-ink-2 tabular-nums">
             {room.name} · {room.widthMm} × {room.depthMm}mm
           </p>
         </header>
 
-        <div className="border-hairline rounded-card h-[60vh] min-h-[24rem] overflow-hidden border lg:h-auto lg:min-h-0 lg:flex-1">
+        <div className="h-[60vh] min-h-[24rem] overflow-hidden rounded-card border border-hairline bg-canvas-bg lg:h-auto lg:min-h-0 lg:flex-1">
           <FloorPlanCanvas findings={findings} highlightedKey={highlightedKey} />
         </div>
 

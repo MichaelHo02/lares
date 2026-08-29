@@ -11,7 +11,7 @@ import {
   computeViewBox,
   mmPerPixel,
   type ViewTransform,
-} from "@/lib/geometry/viewport";
+} from "@/lib/canvas/viewport";
 import { selectPlacement } from "@/lib/store/operations";
 import { usePlannerStore } from "@/lib/store/store";
 import { PlanLegend, ScaleBar, ZoomControls } from "./CanvasChrome";

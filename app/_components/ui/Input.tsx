@@ -20,8 +20,8 @@ export function Input({
   ...rest
 }: InputProps) {
   const ring = error
-    ? "shadow-[inset_0_0_0_2px_#e00751]"
-    : "shadow-[inset_0_0_0_1px_#929292] focus-within:shadow-[inset_0_0_0_2px_#111111]";
+    ? "shadow-ring-negative"
+    : "shadow-ring-subtle focus-within:shadow-ring-ink-thick";
 
   return (
     <label className={cn("flex flex-col gap-1.5", wrapperClassName)}>
@@ -32,7 +32,7 @@ export function Input({
         className={cn(
           "flex w-full items-center rounded-input bg-surface px-1.5 transition-shadow",
           ring,
-          disabled && "bg-surface-sunken shadow-[inset_0_0_0_1px_#cccccc]",
+          disabled && "bg-surface-sunken shadow-ring-disabled",
         )}
       >
         <input

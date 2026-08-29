@@ -10,7 +10,7 @@ import {
   clientToRoom,
   snapFootprint,
   snapToGrid,
-} from "@/lib/geometry/viewport";
+} from "@/lib/canvas/viewport";
 import { moveItem, removeItem, rotateItem, selectPlacement } from "@/lib/store/operations";
 
 interface DragState {

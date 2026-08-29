@@ -18,11 +18,11 @@ function variantClasses(variant: PanelVariant): string {
     case "docked":
       return "h-full w-full border-l border-hairline bg-surface";
     case "sheet":
-      return "rounded-sheet bg-surface shadow-[0_4px_16px_#0000001a]";
+      return "rounded-sheet bg-surface shadow-sheet";
     case "sunken":
       return "rounded-card bg-surface-sunken";
     case "plain":
-      return "rounded-card bg-surface shadow-[inset_0_0_0_1px_#dfdfdf]";
+      return "rounded-card bg-surface shadow-ring-hairline";
     default: {
       const exhaustive: never = variant;
       return exhaustive;

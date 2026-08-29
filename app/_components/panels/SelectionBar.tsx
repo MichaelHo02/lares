@@ -1,10 +1,9 @@
 "use client";
 
 import { resolvePlacement } from "@/lib/domain/placement";
-import { formatAud } from "@/lib/domain/units";
 import { removeItem, rotateItem, selectPlacement } from "@/lib/store/operations";
 import { usePlannerStore } from "@/lib/store/store";
-import { Button } from "../ui";
+import { Button, Panel, Price } from "../ui";
 import { nextRotation } from "../plan/usePlanInteraction";
 
 /**
@@ -21,22 +20,28 @@ export function SelectionBar() {
 
   if (!placement || !resolved) {
     return (
-      <p className="bg-surface-sunken rounded-card text-body-m text-ink-2 px-4 py-3">
-        Drag anything on the plan to move it. Select an item to rotate or remove it.
-      </p>
+      <Panel variant="sunken">
+        <p className="text-body-m text-ink-2">
+          Drag anything on the plan to move it. Select an item to rotate or remove it.
+        </p>
+      </Panel>
     );
   }
 
   const rotation = nextRotation(placement.rotation);
 
   return (
-    <div className="border-hairline-strong rounded-card flex flex-wrap items-center gap-4 border px-4 py-3">
+    <Panel variant="plain" bodyClassName="flex flex-wrap items-center gap-4 !py-3">
       <div className="min-w-0 flex-1">
-        <p className="text-label-m truncate font-bold">{resolved.product.name}</p>
+        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          <p className="text-label-m truncate font-bold text-ink">
+            {resolved.product.name}
+          </p>
+          <Price amount={resolved.product.priceCents / 100} size="small" />
+        </div>
         <p className="text-body-s text-ink-3 tabular-nums">
           {resolved.footprint.width} × {resolved.footprint.depth}mm at ({placement.x},{" "}
-          {placement.y}) · {placement.rotation}° ·{" "}
-          {formatAud(resolved.product.priceCents)}
+          {placement.y}) · {placement.rotation}°
         </p>
       </div>
 
@@ -60,6 +65,6 @@ export function SelectionBar() {
           Deselect
         </Button>
       </div>
-    </div>
+    </Panel>
   );
 }

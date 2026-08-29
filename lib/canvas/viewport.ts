@@ -1,6 +1,6 @@
 import type { Room } from "../domain/room";
 import type { Mm } from "../domain/units";
-import type { Point, Rect } from "./rect";
+import type { Point, Rect } from "../geometry/rect";
 
 /** Room-space padding around the walls, leaving space for dimension lines. */
 export const PLAN_MARGIN_MM: Mm = 900;

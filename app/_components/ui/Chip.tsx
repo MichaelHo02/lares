@@ -23,9 +23,9 @@ export function Chip({
       className={cn(
         "inline-flex min-h-10 items-center gap-1.5 rounded-pill px-4 text-label-m font-bold text-ink transition-shadow",
         selected
-          ? "bg-surface-sunken shadow-[inset_0_0_0_2px_#111111]"
-          : "bg-surface shadow-[inset_0_0_0_1px_#dfdfdf] hover:shadow-[inset_0_0_0_1px_#111111]",
-        "disabled:pointer-events-none disabled:text-ink-3 disabled:shadow-[inset_0_0_0_1px_#dfdfdf]",
+          ? "bg-surface-sunken shadow-ring-ink-thick"
+          : "bg-surface shadow-ring-hairline hover:shadow-ring-ink",
+        "disabled:pointer-events-none disabled:text-ink-3 disabled:shadow-ring-hairline",
         className,
       )}
       {...rest}

@@ -28,7 +28,7 @@ function Swatch({ name, className }: { name: string; className: string }) {
   return (
     <div className="flex flex-col gap-1">
       <div
-        className={`h-16 w-full rounded-card shadow-[inset_0_0_0_1px_#dfdfdf] ${className}`}
+        className={`h-16 w-full rounded-card shadow-ring-hairline ${className}`}
       />
       <span className="text-body-s text-ink-2">{name}</span>
     </div>

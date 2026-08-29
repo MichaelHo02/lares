@@ -20,7 +20,7 @@ function badgeClasses(tone: CardBadgeTone): string {
     case "yellow":
       return "bg-accent-yellow text-ink";
     case "new":
-      return "bg-surface text-caution-text shadow-[inset_0_0_0_1px_currentColor]";
+      return "bg-surface text-caution-text shadow-ring-ink";
     case "offer":
       return "bg-price-drop text-ink-inverse";
     default: {

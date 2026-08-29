@@ -30,7 +30,7 @@ function variantClasses(variant: ButtonVariant): string {
     case "emphasis":
       return "bg-emphasis text-ink-inverse hover:bg-emphasis-hover active:bg-emphasis-pressed disabled:bg-disabled-bg disabled:text-ink-3";
     case "secondary":
-      return "bg-transparent text-ink shadow-[inset_0_0_0_1px_#111111] hover:shadow-[inset_0_0_0_2px_#111111] active:bg-neutral-3/50 disabled:shadow-[inset_0_0_0_1px_#cccccc] disabled:text-ink-3";
+      return "bg-transparent text-ink shadow-ring-ink hover:shadow-ring-ink-thick active:bg-neutral-3/50 disabled:shadow-ring-disabled disabled:text-ink-3";
     case "tertiary":
       return "bg-transparent text-ink hover:bg-subtle-pressed active:bg-neutral-4 disabled:text-ink-3";
     case "destructive":
