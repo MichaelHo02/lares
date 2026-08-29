@@ -45,10 +45,10 @@ export function HowToUse({ available, registeredCount, error }: HowToUseProps) {
       }
     >
       <p className="text-body-m text-ink-2">
-        Lares is agent-driven. The page publishes its floor plan as {toolCount} WebMCP
-        tools, so an agent can measure the room, search a catalog by what physically
-        fits, place furniture and read back real clearance violations. You can always
-        drag, rotate and delete items yourself on the plan.
+        Lares is a 3D furniture studio you and an agent share. Describe the room,
+        pick a theme, and the agent places catalog pieces through {toolCount} WebMCP
+        tools while you watch the viewport update. Drag to nudge, double-click to
+        rotate, and shop from the sidebar like a normal retailer.
       </p>
 
       {!detected && available !== null ? (

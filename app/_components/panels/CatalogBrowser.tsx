@@ -1,0 +1,127 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import {
+  CATEGORY_GLYPHS,
+  CATEGORY_LABELS,
+  PRODUCT_CATEGORIES,
+  type ProductCategory,
+  type StyleTag,
+} from "@/lib/domain/product";
+import { placeItem } from "@/lib/store/operations";
+import { usePlannerStore } from "@/lib/store/store";
+import { Button, Card, Chip, Input, Panel, Price } from "@/app/_components/ui";
+
+/**
+ * IKEA-like catalog browse: filter by room function / style, add to the studio.
+ * Placement lands near the room centre so the agent (or user) can refine.
+ */
+export function CatalogBrowser() {
+  const room = usePlannerStore((state) => state.room);
+  const catalog = usePlannerStore((state) => state.catalog);
+  const [category, setCategory] = useState<ProductCategory | "all">("all");
+  const [query, setQuery] = useState("");
+  const [theme, setTheme] = useState<StyleTag | "all">("all");
+
+  const themes = useMemo(() => {
+    const tags = new Set<StyleTag>();
+    for (const product of catalog) {
+      for (const tag of product.styleTags) tags.add(tag);
+    }
+    return [...tags].sort();
+  }, [catalog]);
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return catalog.filter((product) => {
+      if (category !== "all" && product.category !== category) return false;
+      if (theme !== "all" && !product.styleTags.includes(theme)) return false;
+      if (!q) return true;
+      return (
+        product.name.toLowerCase().includes(q) ||
+        product.blurb.toLowerCase().includes(q) ||
+        product.styleTags.some((tag) => tag.includes(q))
+      );
+    });
+  }, [catalog, category, query, theme]);
+
+  function addProduct(productId: string) {
+    const product = catalog.find((item) => item.id === productId);
+    if (!product) return;
+    const x = Math.max(200, Math.round(room.widthMm / 2 - product.widthMm / 2));
+    const y = Math.max(200, Math.round(room.depthMm / 2 - product.depthMm / 2));
+    placeItem({
+      productId,
+      x,
+      y,
+      rotation: 0,
+      source: "user",
+    });
+  }
+
+  return (
+    <Panel title="Shop furniture" variant="plain" className="shadow-none">
+      <div className="flex flex-col gap-3">
+        <Input
+          label="Search"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Sofa, oak, coastal…"
+        />
+
+        <div className="flex flex-wrap gap-2">
+          <Chip selected={category === "all"} onClick={() => setCategory("all")}>
+            All
+          </Chip>
+          {PRODUCT_CATEGORIES.map((item) => (
+            <Chip
+              key={item}
+              selected={category === item}
+              onClick={() => setCategory(item)}
+            >
+              {CATEGORY_LABELS[item]}
+            </Chip>
+          ))}
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          <Chip selected={theme === "all"} onClick={() => setTheme("all")}>
+            Any theme
+          </Chip>
+          {themes.slice(0, 10).map((tag) => (
+            <Chip key={tag} selected={theme === tag} onClick={() => setTheme(tag)}>
+              {tag}
+            </Chip>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-1 gap-0 border-l border-t border-hairline">
+          {filtered.slice(0, 24).map((product) => (
+            <Card
+              key={product.id}
+              title={product.name}
+              meta={`${CATEGORY_LABELS[product.category]} · ${product.widthMm}×${product.depthMm}mm`}
+              price={<Price amount={product.priceCents / 100} size="small" />}
+              media={
+                <div className="flex h-full items-center justify-center text-4xl">
+                  {CATEGORY_GLYPHS[product.category]}
+                </div>
+              }
+              action={
+                <Button size="small" fullWidth onClick={() => addProduct(product.id)}>
+                  Add to room
+                </Button>
+              }
+            >
+              <p className="text-caption-m text-ink-3">{product.blurb}</p>
+            </Card>
+          ))}
+        </div>
+
+        {filtered.length === 0 ? (
+          <p className="text-body-s text-ink-3">No products match these filters.</p>
+        ) : null}
+      </div>
+    </Panel>
+  );
+}
