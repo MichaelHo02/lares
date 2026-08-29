@@ -6,6 +6,7 @@ import * as THREE from "three";
 import type { ResolvedPlacement } from "@/lib/domain/placement";
 import { isFloorCovering } from "@/lib/domain/product";
 import type { Mm } from "@/lib/domain/units";
+import { SNAP_MM } from "@/lib/canvas/viewport";
 import { MM_TO_M, mmToM } from "@/lib/studio/units";
 import { FurnitureShape } from "./FurnitureShape";
 import { useStudioInteraction } from "./StudioInteraction";
@@ -85,8 +86,10 @@ export function FurnitureMesh({
     event.stopPropagation();
     setDragging(false);
     setOrbitEnabled(true);
-    const xMm = Math.round((groupRef.current.position.x - widthM / 2) / MM_TO_M) as Mm;
-    const yMm = Math.round((groupRef.current.position.z - depthM / 2) / MM_TO_M) as Mm;
+    const rawX = (groupRef.current.position.x - widthM / 2) / MM_TO_M;
+    const rawY = (groupRef.current.position.z - depthM / 2) / MM_TO_M;
+    const xMm = (Math.round(rawX / SNAP_MM) * SNAP_MM) as Mm;
+    const yMm = (Math.round(rawY / SNAP_MM) * SNAP_MM) as Mm;
     onDragEnd(xMm, yMm);
   }
 

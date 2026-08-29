@@ -93,11 +93,11 @@ export function HowToUse({ available, registeredCount, error }: HowToUseProps) {
           Editing the plan by hand
         </summary>
         <ul className="text-body-m text-ink-2 mt-2 flex list-disc flex-col gap-1 pl-5">
-          <li>Drag any item to move it. It snaps to 10mm, and flush to a nearby wall.</li>
+          <li>Drag any item in the 3D studio to move it.</li>
           <li>Arrow keys nudge the selected item; hold Shift for 100mm steps.</li>
           <li>
             Press <Key>R</Key> to rotate, <Key>Delete</Key> to remove, <Key>Esc</Key> to
-            deselect.
+            deselect. Use Top for a plan-like orthographic view.
           </li>
         </ul>
       </details>

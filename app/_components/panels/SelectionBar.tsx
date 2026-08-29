@@ -22,7 +22,8 @@ export function SelectionBar() {
     return (
       <Panel variant="sunken">
         <p className="text-body-m text-ink-2">
-          Drag anything on the plan to move it. Select an item to rotate or remove it.
+          Drag furniture in the studio to move it. Select an item to rotate, nudge
+          with arrow keys, or remove it.
         </p>
       </Panel>
     );
