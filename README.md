@@ -8,7 +8,7 @@ your floor plan builds itself: walls, doors, windows, furniture, costs. Every pl
 checked against real-world circulation and clearance rules, so the plan you end up with is
 one you could actually live in — and actually buy.
 
-- **Live demo:** _TBD — deployed URL goes here_
+- **Live demo:** https://lares-woad.vercel.app
 - **Demo video:** _TBD — YouTube link goes here_
 - **Requires:** ChatGPT's in-app browser, or Chrome 149+ with `chrome://flags/#enable-webmcp-testing`
 
