@@ -10,6 +10,7 @@ import { ROTATIONS, type Rotation } from "../../geometry/rotation";
 import {
   applyLayout,
   defineRoom,
+  furnishRoom,
   moveItem,
   placeItem,
   removeItem,
@@ -19,6 +20,8 @@ import {
 } from "../../store/operations";
 import { buildCostBreakdown } from "../../cost/breakdown";
 import { plannerState } from "../../store/store";
+import { ROOM_FUNCTIONS } from "../../studio/furnish";
+import { STYLE_TAGS } from "../../domain/product";
 import {
   ToolInputError,
   optionalBoolean,
@@ -402,8 +405,60 @@ const setBudgetTool: ToolDescriptor = {
   },
 };
 
+const furnishRoomTool: ToolDescriptor = {
+  name: "furnish_room",
+  description:
+    "Furnish the current room for a function (living_room, bedroom, home_office, dining) and optional style theme. Picks matching catalog products, places a starter layout in the 3D studio, and returns clearance findings so you can inspect and refine. Prefer this over hand-placing every item when the user says 'furnish my living room in warm timber'.",
+  inputSchema: {
+    type: "object",
+    properties: {
+      roomFunction: {
+        type: "string",
+        enum: ROOM_FUNCTIONS,
+        description: "How the room will be used.",
+      },
+      theme: {
+        type: "string",
+        enum: STYLE_TAGS,
+        description: "Optional style tag to bias product picks, e.g. 'warm timber' or 'scandinavian'.",
+      },
+      budgetCents: {
+        type: "integer",
+        description:
+          "Optional spending limit in Australian cents. Also sets the studio budget.",
+        minimum: 0,
+        maximum: MAX_PRICE_CENTS,
+      },
+      replaceExisting: {
+        type: "boolean",
+        description: "Replace current placements (default true) rather than adding to them.",
+      },
+    },
+    required: ["roomFunction"],
+    additionalProperties: false,
+  },
+  annotations: MUTATING,
+  execute: (args) => {
+    try {
+      return toolResult(
+        furnishRoom({
+          roomFunction: requiredEnum(args, "roomFunction", ROOM_FUNCTIONS),
+          theme: optionalString(args, "theme")
+            ? requiredEnum(args, "theme", STYLE_TAGS)
+            : undefined,
+          budgetCents: optionalInteger(args, "budgetCents", 0, MAX_PRICE_CENTS),
+          replaceExisting: optionalBoolean(args, "replaceExisting") ?? true,
+        }),
+      );
+    } catch (cause) {
+      return toolError(cause);
+    }
+  },
+};
+
 export const WRITE_TOOLS: readonly ToolDescriptor[] = [
   defineRoomTool,
+  furnishRoomTool,
   placeItemTool,
   moveItemTool,
   rotateItemTool,

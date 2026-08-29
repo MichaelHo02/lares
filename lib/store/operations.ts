@@ -1,9 +1,11 @@
 import { summariseFindings } from "../clearance/findings";
 import { findingsForPlacement } from "../clearance/checkLayout";
 import type { Placement } from "../domain/placement";
+import type { StyleTag } from "../domain/product";
 import { createRectangularRoom, type Room } from "../domain/room";
 import type { Rotation } from "../geometry/rotation";
 import type { Cents, Mm } from "../domain/units";
+import { proposeFurnish, type RoomFunction } from "../studio/furnish";
 import {
   failure,
   findingDelta,
@@ -331,4 +333,54 @@ export function setBudget(budgetCents: Cents | null): void {
 
 export function selectPlacement(placementId: string | null): void {
   patchPlanner({ selectedPlacementId: placementId });
+}
+
+export interface FurnishRoomInput {
+  roomFunction: RoomFunction;
+  theme?: StyleTag;
+  budgetCents?: Cents | null;
+  replaceExisting?: boolean;
+}
+
+/**
+ * Agent-facing convenience: pick catalog pieces for a room function + theme,
+ * place them, and return findings so the agent can refine in the 3D studio.
+ */
+export function furnishRoom(input: FurnishRoomInput): MutationResult & {
+  notes: string[];
+  proposalTotalCents: Cents;
+} {
+  const state = plannerState();
+  const proposal = proposeFurnish({
+    room: state.room,
+    catalog: state.catalog,
+    roomFunction: input.roomFunction,
+    theme: input.theme,
+    budgetCents: input.budgetCents,
+  });
+
+  if (proposal.items.length === 0) {
+    return {
+      ...failure(
+        proposal.notes.join(" ") || "No furniture could be placed.",
+        EMPTY_FINDING_SUMMARY,
+      ),
+      notes: proposal.notes,
+      proposalTotalCents: proposal.totalCents,
+    };
+  }
+
+  if (input.budgetCents !== undefined) {
+    setBudget(input.budgetCents);
+  }
+
+  const result = applyLayout(proposal.items, input.replaceExisting ?? true);
+  return {
+    ...result,
+    summary:
+      `${result.summary} Function=${input.roomFunction}` +
+      `${input.theme ? `, theme=${input.theme}` : ""}.`,
+    notes: proposal.notes,
+    proposalTotalCents: proposal.totalCents,
+  };
 }

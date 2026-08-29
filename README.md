@@ -115,6 +115,7 @@ read and write tools, with sensitive actions gated.
 | Tool | Purpose |
 | --- | --- |
 | `define_room` | Create or replace room geometry from a description |
+| `furnish_room` | Place a starter layout by room function + style theme |
 | `place_item` | Add a product at a position and rotation |
 | `move_item` / `rotate_item` / `remove_item` | Adjust a single placement |
 | `swap_product` | Replace a placement's product, preserving position |

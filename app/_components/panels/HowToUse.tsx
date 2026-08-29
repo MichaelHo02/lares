@@ -4,8 +4,8 @@ import { LARES_TOOLS } from "@/lib/webmcp/tools";
 import { Panel } from "../ui";
 
 const EXAMPLE_PROMPTS = [
-  "My living room is 4.2m by 3.8m, door on the north wall near the left corner, window along the east wall.",
-  "Furnish it for someone who works from home, in warm timber tones. Keep it under $3,000.",
+  "My living room is 4.2m by 3.8m, door on the north wall near the left, window on the east wall.",
+  "Furnish this living room in warm timber under $3,000.",
   "Check the clearances and fix anything that fails.",
   "Swap the sofa for something smaller and move the desk under the window.",
 ];

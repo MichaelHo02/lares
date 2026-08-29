@@ -7,6 +7,7 @@ import type { ResolvedPlacement } from "@/lib/domain/placement";
 import { isFloorCovering } from "@/lib/domain/product";
 import type { Mm } from "@/lib/domain/units";
 import { MM_TO_M, mmToM } from "@/lib/studio/units";
+import { FurnitureShape } from "./FurnitureShape";
 import { useStudioInteraction } from "./StudioInteraction";
 
 interface FurnitureMeshProps {
@@ -20,8 +21,8 @@ interface FurnitureMeshProps {
 }
 
 /**
- * Box proxy for a catalog product. Drag on the floor plane to move (SketchUp-
- * style nudge); double-click to rotate 90°. Real meshes come later.
+ * Interactive furniture proxy. Drag on the floor to move; double-click to
+ * rotate 90°. Agent edits update the same store, so the mesh follows along.
  */
 export function FurnitureMesh({
   entry,
@@ -33,7 +34,7 @@ export function FurnitureMesh({
   onRotate,
 }: FurnitureMeshProps) {
   const { footprint, product } = entry;
-  const meshRef = useRef<THREE.Mesh>(null);
+  const groupRef = useRef<THREE.Group>(null);
   const { camera, gl } = useThree();
   const { setOrbitEnabled } = useStudioInteraction();
   const [dragging, setDragging] = useState(false);
@@ -50,6 +51,7 @@ export function FurnitureMesh({
   const centerX = mmToM(footprint.x) + widthM / 2;
   const centerZ = mmToM(footprint.y) + depthM / 2;
   const color = highlighted ? "#ca5008" : selected ? "#0058a3" : categoryColor(product.category);
+  const metalness = product.styleTags.includes("black metal") ? 0.4 : 0.05;
 
   function projectToFloor(clientX: number, clientY: number): THREE.Vector3 | null {
     const rect = gl.domElement.getBoundingClientRect();
@@ -70,21 +72,21 @@ export function FurnitureMesh({
   }
 
   function onPointerMove(event: ThreeEvent<PointerEvent>) {
-    if (!dragging || !meshRef.current) return;
+    if (!dragging || !groupRef.current) return;
     event.stopPropagation();
     const point = projectToFloor(event.clientX, event.clientY);
     if (!point) return;
-    meshRef.current.position.x = point.x;
-    meshRef.current.position.z = point.z;
+    groupRef.current.position.x = point.x;
+    groupRef.current.position.z = point.z;
   }
 
   function onPointerUp(event: ThreeEvent<PointerEvent>) {
-    if (!dragging || !meshRef.current) return;
+    if (!dragging || !groupRef.current) return;
     event.stopPropagation();
     setDragging(false);
     setOrbitEnabled(true);
-    const xMm = Math.round((meshRef.current.position.x - widthM / 2) / MM_TO_M) as Mm;
-    const yMm = Math.round((meshRef.current.position.z - depthM / 2) / MM_TO_M) as Mm;
+    const xMm = Math.round((groupRef.current.position.x - widthM / 2) / MM_TO_M) as Mm;
+    const yMm = Math.round((groupRef.current.position.z - depthM / 2) / MM_TO_M) as Mm;
     onDragEnd(xMm, yMm);
   }
 
@@ -94,33 +96,29 @@ export function FurnitureMesh({
   }
 
   return (
-    <mesh
-      ref={meshRef}
-      castShadow
-      receiveShadow
-      position={[centerX, heightM / 2, centerZ]}
+    <group
+      ref={groupRef}
+      position={[centerX, 0, centerZ]}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
       onDoubleClick={onDoubleClick}
     >
-      <boxGeometry args={[widthM, heightM, depthM]} />
-      <meshStandardMaterial
+      <FurnitureShape
+        category={product.category}
+        widthM={widthM}
+        heightM={heightM}
+        depthM={depthM}
         color={color}
-        roughness={0.65}
-        metalness={product.styleTags.includes("black metal") ? 0.4 : 0.05}
-        transparent={isFloorCovering(product.category)}
-        opacity={isFloorCovering(product.category) ? 0.85 : 1}
+        metalness={metalness}
       />
       {selected ? (
-        <lineSegments>
-          <edgesGeometry
-            args={[new THREE.BoxGeometry(widthM * 1.02, heightM * 1.02, depthM * 1.02)]}
-          />
-          <lineBasicMaterial color="#111111" />
-        </lineSegments>
+        <mesh position={[0, heightM / 2, 0]}>
+          <boxGeometry args={[widthM * 1.04, heightM * 1.04, depthM * 1.04]} />
+          <meshBasicMaterial color="#111111" wireframe transparent opacity={0.55} />
+        </mesh>
       ) : null}
-    </mesh>
+    </group>
   );
 }
 
