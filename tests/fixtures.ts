@@ -1,3 +1,4 @@
+import type { Finding, FindingCode } from "../lib/clearance/findings";
 import type { Placement } from "../lib/domain/placement";
 import type { Catalog, Product } from "../lib/domain/product";
 import { createRectangularRoom, type Opening, type Room } from "../lib/domain/room";
@@ -9,7 +10,9 @@ import type { Rotation } from "../lib/geometry/rotation";
  * merchandising data can never change what the engine tests assert.
  */
 
-function product(overrides: Partial<Product> & Pick<Product, "id" | "category">): Product {
+export function aProduct(
+  overrides: Partial<Product> & Pick<Product, "id" | "category">,
+): Product {
   return {
     name: overrides.id,
     widthMm: 1000,
@@ -24,7 +27,7 @@ function product(overrides: Partial<Product> & Pick<Product, "id" | "category">)
 }
 
 export const TEST_PRODUCTS = {
-  sofa: product({
+  sofa: aProduct({
     id: "test-sofa",
     name: "Test Sofa",
     category: "sofa",
@@ -35,7 +38,7 @@ export const TEST_PRODUCTS = {
       { face: "front", depthMm: 400, reason: "seating_approach", label: "Legroom" },
     ],
   }),
-  coffeeTable: product({
+  coffeeTable: aProduct({
     id: "test-coffee-table",
     name: "Test Coffee Table",
     category: "coffee_table",
@@ -43,7 +46,7 @@ export const TEST_PRODUCTS = {
     depthMm: 600,
     heightMm: 400,
   }),
-  diningTable: product({
+  diningTable: aProduct({
     id: "test-dining-table",
     name: "Test Dining Table",
     category: "dining_table",
@@ -57,7 +60,7 @@ export const TEST_PRODUCTS = {
       { face: "right", depthMm: 900, reason: "chair_pullout", label: "Chair pull-out" },
     ],
   }),
-  wardrobe: product({
+  wardrobe: aProduct({
     id: "test-wardrobe",
     name: "Test Wardrobe",
     category: "wardrobe",
@@ -68,7 +71,7 @@ export const TEST_PRODUCTS = {
       { face: "front", depthMm: 600, reason: "door_swing", label: "Door swing" },
     ],
   }),
-  queenBed: product({
+  queenBed: aProduct({
     id: "test-queen-bed",
     name: "Test Queen Bed",
     category: "bed",
@@ -80,7 +83,7 @@ export const TEST_PRODUCTS = {
       { face: "right", depthMm: 600, reason: "side_access", label: "Side access" },
     ],
   }),
-  singleBed: product({
+  singleBed: aProduct({
     id: "test-single-bed",
     name: "Test Single Bed",
     category: "bed",
@@ -93,7 +96,7 @@ export const TEST_PRODUCTS = {
       { face: "right", depthMm: 600, reason: "side_access", label: "Side access" },
     ],
   }),
-  bedsideTable: product({
+  bedsideTable: aProduct({
     id: "test-bedside-table",
     name: "Test Bedside Table",
     category: "bedside_table",
@@ -101,7 +104,7 @@ export const TEST_PRODUCTS = {
     depthMm: 400,
     heightMm: 550,
   }),
-  rug: product({
+  rug: aProduct({
     id: "test-rug",
     name: "Test Rug",
     category: "rug",
@@ -109,7 +112,7 @@ export const TEST_PRODUCTS = {
     depthMm: 1700,
     heightMm: 10,
   }),
-  diningChair: product({
+  diningChair: aProduct({
     id: "test-dining-chair",
     name: "Test Dining Chair",
     category: "dining_chair",
@@ -118,7 +121,7 @@ export const TEST_PRODUCTS = {
     heightMm: 880,
   }),
   /** Rigid and too bulky to pass a standard 820mm doorway in any orientation. */
-  bulkySectional: product({
+  bulkySectional: aProduct({
     id: "test-bulky-sectional",
     name: "Test Bulky Sectional",
     category: "sofa",
@@ -126,7 +129,7 @@ export const TEST_PRODUCTS = {
     depthMm: 1000,
     heightMm: 900,
   }),
-  bookshelf: product({
+  bookshelf: aProduct({
     id: "test-bookshelf",
     name: "Test Bookshelf",
     category: "bookshelf",
@@ -176,4 +179,45 @@ export function place(
   rotation: Rotation = 0,
 ): Placement {
   return { id, productId, x, y, rotation };
+}
+
+/** A room with no openings, so only the rule under test can produce findings. */
+export function bareRoom(widthMm = 6000, depthMm = 6000): Room {
+  return createRectangularRoom({ name: "Bare Room", widthMm, depthMm });
+}
+
+export function aDoor(overrides: Partial<Opening> & Pick<Opening, "id">): Opening {
+  return {
+    type: "door",
+    wall: "north",
+    offsetMm: 0,
+    widthMm: 820,
+    heightMm: 2040,
+    swing: { hingeSide: "start", direction: "inward" },
+    ...overrides,
+  };
+}
+
+export function catalogOf(...products: readonly Product[]): Catalog {
+  return products;
+}
+
+export function codesOf(findings: readonly Finding[]): FindingCode[] {
+  return findings.map((finding) => finding.code);
+}
+
+export function findingsOf(
+  findings: readonly Finding[],
+  code: FindingCode,
+): Finding[] {
+  return findings.filter((finding) => finding.code === code);
+}
+
+/** Fails loudly with the codes that were actually produced, which is the useful diagnostic. */
+export function firstOf(findings: readonly Finding[], code: FindingCode): Finding {
+  const found = findings.find((finding) => finding.code === code);
+  if (!found) {
+    throw new Error(`expected a ${code} finding, got ${codesOf(findings).join(", ") || "none"}`);
+  }
+  return found;
 }
