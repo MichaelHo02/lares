@@ -1,5 +1,5 @@
 import type { Mm } from "../domain/units";
-import type { ProductCategory } from "../domain/product";
+import type { ClearanceReason, ProductCategory } from "../domain/product";
 
 /**
  * Circulation figures follow the residential guidance common to AS 1428-derived
@@ -82,8 +82,10 @@ export function isCompanionPair(a: ProductCategory, b: ProductCategory): boolean
  * Categories permitted to stand inside another product's declared clearance
  * zone, because they are what the clearance exists to accommodate.
  */
-const CLEARANCE_ZONE_OCCUPANTS: ReadonlyMap<string, ReadonlySet<ProductCategory>> =
-  new Map<string, ReadonlySet<ProductCategory>>([
+const CLEARANCE_ZONE_OCCUPANTS: ReadonlyMap<
+  ClearanceReason,
+  ReadonlySet<ProductCategory>
+> = new Map<ClearanceReason, ReadonlySet<ProductCategory>>([
     ["chair_pullout", new Set<ProductCategory>(["dining_chair", "rug"])],
     ["seating_approach", new Set<ProductCategory>(["coffee_table", "office_chair", "rug"])],
     ["side_access", new Set<ProductCategory>(["bedside_table", "rug"])],
@@ -92,7 +94,7 @@ const CLEARANCE_ZONE_OCCUPANTS: ReadonlyMap<string, ReadonlySet<ProductCategory>
   ]);
 
 export function mayOccupyClearanceZone(
-  reason: string,
+  reason: ClearanceReason,
   category: ProductCategory,
 ): boolean {
   return CLEARANCE_ZONE_OCCUPANTS.get(reason)?.has(category) ?? false;

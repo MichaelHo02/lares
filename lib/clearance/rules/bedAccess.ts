@@ -1,4 +1,3 @@
-import type { ResolvedPlacement } from "../../domain/placement";
 import { isFloorCovering, type Product } from "../../domain/product";
 import { faceToCompass, zoneOutside } from "../../geometry/rotation";
 import { describe, type Rule } from "../context";

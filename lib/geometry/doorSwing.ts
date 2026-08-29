@@ -24,6 +24,11 @@ export interface DoorSwingGeometry {
   bounds: Rect;
 }
 
+/** Negating a zero component yields -0, which leaks into coordinates and JSON. */
+function reverse(vector: Point): Point {
+  return { x: -vector.x + 0, y: -vector.y + 0 };
+}
+
 function boundsOf(points: readonly Point[]): Rect {
   const xs = points.map((point) => point.x);
   const ys = points.map((point) => point.y);
@@ -51,9 +56,7 @@ export function doorSwingGeometry(
   const direction = wallDirection(wall);
   const hinge = opening.swing.hingeSide === "start" ? segment.start : segment.end;
   const along =
-    opening.swing.hingeSide === "start"
-      ? direction
-      : { x: -direction.x, y: -direction.y };
+    opening.swing.hingeSide === "start" ? direction : reverse(direction);
   const sweep = wallInwardNormal(opening.wall);
   const radiusMm = opening.widthMm;
 
