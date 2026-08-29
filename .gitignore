@@ -10,3 +10,4 @@ dist/
 next-env.d.ts
 coverage/
 *.tsbuildinfo
+.cursor/hooks/state/
