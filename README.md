@@ -137,8 +137,8 @@ agent self-correct.
 ```bash
 git clone https://github.com/MichaelHo02/lares.git
 cd lares
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
 Then open the dev URL in one of:
