@@ -40,7 +40,7 @@ export function Input({
           aria-invalid={error ? true : undefined}
           className={cn(
             "min-h-14 w-full bg-transparent px-2 text-body-l text-ink tabular-nums",
-            "placeholder:text-ink-3 focus:outline-none disabled:text-disabled-fg",
+            "placeholder:text-ink-3 focus:outline-none disabled:text-ink-3",
             className,
           )}
           {...rest}

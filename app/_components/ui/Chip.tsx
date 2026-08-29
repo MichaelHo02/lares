@@ -25,7 +25,7 @@ export function Chip({
         selected
           ? "bg-surface-sunken shadow-[inset_0_0_0_2px_#111111]"
           : "bg-surface shadow-[inset_0_0_0_1px_#dfdfdf] hover:shadow-[inset_0_0_0_1px_#111111]",
-        "disabled:pointer-events-none disabled:text-disabled-fg disabled:shadow-[inset_0_0_0_1px_#dfdfdf]",
+        "disabled:pointer-events-none disabled:text-ink-3 disabled:shadow-[inset_0_0_0_1px_#dfdfdf]",
         className,
       )}
       {...rest}
