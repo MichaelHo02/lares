@@ -1,0 +1,227 @@
+import type { ClearanceRequirement, Product } from "../domain/product";
+import { dollarsToCents } from "../domain/units";
+
+/** A hinged wardrobe door leaf swings its own width; 600mm covers a standard 500-600mm leaf. */
+const HINGED_WARDROBE: readonly ClearanceRequirement[] = [
+  {
+    face: "front",
+    depthMm: 600,
+    reason: "door_swing",
+    label: "Hinged wardrobe doors need 600mm to open fully",
+  },
+];
+
+const SLIDING_WARDROBE: readonly ClearanceRequirement[] = [
+  {
+    face: "front",
+    depthMm: 300,
+    reason: "drawer_pull",
+    label: "Sliding doors need only 300mm of standing room",
+  },
+];
+
+const SHELF_REACH: readonly ClearanceRequirement[] = [
+  {
+    face: "front",
+    depthMm: 350,
+    reason: "drawer_pull",
+    label: "Standing room to reach the shelves",
+  },
+];
+
+export const STORAGE: readonly Product[] = [
+  {
+    id: "halberg-single-wardrobe-600",
+    name: "Halberg Single Wardrobe 600",
+    category: "wardrobe",
+    widthMm: 600,
+    depthMm: 580,
+    heightMm: 1900,
+    priceCents: dollarsToCents(399),
+    styleTags: ["minimal", "compact", "scandinavian"],
+    clearances: HINGED_WARDROBE,
+    blurb: "A one-door wardrobe with a hanging rail and top shelf.",
+  },
+  {
+    id: "halberg-2-door-wardrobe",
+    name: "Halberg 2-Door Wardrobe",
+    category: "wardrobe",
+    widthMm: 1000,
+    depthMm: 600,
+    heightMm: 2000,
+    priceCents: dollarsToCents(699),
+    styleTags: ["light oak", "minimal", "scandinavian"],
+    clearances: HINGED_WARDROBE,
+    blurb: "The everyday two-door Halberg with a shelved side column.",
+  },
+  {
+    id: "halberg-3-door-wardrobe",
+    name: "Halberg 3-Door Wardrobe",
+    category: "wardrobe",
+    widthMm: 1500,
+    depthMm: 600,
+    heightMm: 2100,
+    priceCents: dollarsToCents(1149),
+    styleTags: ["light oak", "warm timber", "minimal"],
+    clearances: HINGED_WARDROBE,
+    blurb: "Three hinged doors over a full-width drawer bank.",
+  },
+  {
+    id: "vantorp-sliding-wardrobe-1800",
+    name: "Vantorp Sliding Wardrobe 1800",
+    category: "wardrobe",
+    widthMm: 1800,
+    depthMm: 650,
+    heightMm: 2200,
+    priceCents: dollarsToCents(1599),
+    styleTags: ["walnut", "minimal", "black metal"],
+    clearances: SLIDING_WARDROBE,
+    blurb: "Sliding doors mean this wardrobe suits a tight walkway beside the bed.",
+  },
+  {
+    id: "vantorp-sliding-wardrobe-2000",
+    name: "Vantorp Sliding Wardrobe 2000",
+    category: "wardrobe",
+    widthMm: 2000,
+    depthMm: 650,
+    heightMm: 2400,
+    priceCents: dollarsToCents(1899),
+    styleTags: ["walnut", "brushed brass", "minimal"],
+    clearances: SLIDING_WARDROBE,
+    blurb: "A four-panel sliding wardrobe with mirrored centre doors and no door swing.",
+  },
+
+  {
+    id: "asvik-bookshelf-800",
+    name: "Asvik Bookshelf 800",
+    category: "bookshelf",
+    widthMm: 800,
+    depthMm: 300,
+    heightMm: 2000,
+    priceCents: dollarsToCents(229),
+    styleTags: ["light oak", "minimal", "compact"],
+    clearances: SHELF_REACH,
+    blurb: "Five fixed shelves in a slim oak-veneer carcase.",
+  },
+  {
+    id: "gjerde-industrial-shelf",
+    name: "Gjerde Industrial Shelf",
+    category: "bookshelf",
+    widthMm: 900,
+    depthMm: 350,
+    heightMm: 1800,
+    priceCents: dollarsToCents(329),
+    styleTags: ["black metal", "industrial", "minimal"],
+    clearances: SHELF_REACH,
+    blurb: "Open black steel uprights with reclaimed-look timber shelves.",
+  },
+  {
+    id: "lundhagen-wide-bookcase",
+    name: "Lundhagen Wide Bookcase",
+    category: "bookshelf",
+    widthMm: 1600,
+    depthMm: 320,
+    heightMm: 2100,
+    priceCents: dollarsToCents(649),
+    styleTags: ["warm timber", "scandinavian", "minimal"],
+    clearances: SHELF_REACH,
+    blurb: "A double-bay bookcase that fills a whole wall of a study.",
+  },
+
+  {
+    id: "elvedal-sideboard-1200",
+    name: "Elvedal Sideboard 1200",
+    category: "sideboard",
+    widthMm: 1200,
+    depthMm: 420,
+    heightMm: 780,
+    priceCents: dollarsToCents(699),
+    styleTags: ["light oak", "minimal", "compact"],
+    clearances: [
+      {
+        face: "front",
+        depthMm: 450,
+        reason: "door_swing",
+        label: "Cabinet doors need 450mm to swing clear",
+      },
+    ],
+    blurb: "A two-door sideboard for a hallway or small dining room.",
+  },
+  {
+    id: "elvedal-sideboard-1600",
+    name: "Elvedal Sideboard 1600",
+    category: "sideboard",
+    widthMm: 1600,
+    depthMm: 450,
+    heightMm: 800,
+    priceCents: dollarsToCents(1099),
+    styleTags: ["warm timber", "mid-century", "brushed brass"],
+    clearances: [
+      {
+        face: "front",
+        depthMm: 500,
+        reason: "door_swing",
+        label: "Cabinet doors need 500mm to swing clear",
+      },
+    ],
+    blurb: "Four doors and two drawers on tapered mid-century legs.",
+  },
+  {
+    id: "kvarnstad-drawer-sideboard",
+    name: "Kvarnstad Drawer Sideboard",
+    category: "sideboard",
+    widthMm: 1800,
+    depthMm: 480,
+    heightMm: 820,
+    priceCents: dollarsToCents(1499),
+    styleTags: ["walnut", "black metal", "minimal"],
+    clearances: [
+      {
+        face: "front",
+        depthMm: 600,
+        reason: "drawer_pull",
+        label: "Deep drawers need 600mm to extend fully",
+      },
+    ],
+    blurb: "Six deep walnut drawers on a recessed steel plinth.",
+  },
+
+  {
+    id: "rovsen-tv-unit-1400",
+    name: "Rovsen TV Unit 1400",
+    category: "tv_unit",
+    widthMm: 1400,
+    depthMm: 380,
+    heightMm: 420,
+    priceCents: dollarsToCents(349),
+    styleTags: ["light oak", "minimal", "compact"],
+    clearances: [
+      {
+        face: "front",
+        depthMm: 400,
+        reason: "drawer_pull",
+        label: "Media drawers need 400mm to open",
+      },
+    ],
+    blurb: "A low two-drawer console for televisions up to 55 inches.",
+  },
+  {
+    id: "rovsen-tv-unit-1800",
+    name: "Rovsen TV Unit 1800",
+    category: "tv_unit",
+    widthMm: 1800,
+    depthMm: 400,
+    heightMm: 450,
+    priceCents: dollarsToCents(699),
+    styleTags: ["walnut", "mid-century", "brushed brass"],
+    clearances: [
+      {
+        face: "front",
+        depthMm: 450,
+        reason: "door_swing",
+        label: "Cabinet doors need 450mm to swing clear",
+      },
+    ],
+    blurb: "A wide walnut media unit with fluted sliding-free hinged doors.",
+  },
+];
