@@ -1,5 +1,4 @@
 import type { Finding, FindingSummary } from "../clearance/findings";
-import type { Placement } from "../domain/placement";
 import type { Rect } from "../geometry/rect";
 import type { Cents } from "../domain/units";
 

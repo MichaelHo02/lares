@@ -1,77 +1,83 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { getModelContext, type ToolDescriptor } from "./types";
 
 /**
  * Chrome documents an experimental `usewebmcp` package for React. This is a
  * local equivalent so the project depends only on the browser API itself, which
- * is the thing the standard actually guarantees.
- *
- * Registration is scoped to the component lifecycle: the effect passes an
- * `AbortController` signal to `registerTool` and aborts on unmount, so tools
- * never outlive the component that owns their state.
+ * is the part the standard actually guarantees.
  */
-export function useWebMCPTools(tools: readonly ToolDescriptor[]): {
-  available: boolean;
+
+/** Capability detection never changes for the life of the document. */
+function subscribeToNothing(): () => void {
+  return () => {};
+}
+
+function readAvailability(): boolean {
+  return getModelContext() !== null;
+}
+
+/**
+ * `null` during server render and hydration, so the UI can say it is still
+ * checking rather than briefly claiming WebMCP is missing.
+ */
+export function useWebMCPAvailability(): boolean | null {
+  return useSyncExternalStore<boolean | null>(
+    subscribeToNothing,
+    readAvailability,
+    () => null,
+  );
+}
+
+export interface WebMCPRegistration {
+  available: boolean | null;
   registered: readonly string[];
   error: string | null;
-} {
-  const [available, setAvailable] = useState(false);
+}
+
+/**
+ * Registers a fixed set of tools for the lifetime of the calling component.
+ * The effect passes an `AbortController` signal to `registerTool` and aborts on
+ * unmount, so tools never outlive the component that owns their state.
+ */
+export function useWebMCPTools(tools: readonly ToolDescriptor[]): WebMCPRegistration {
+  const available = useWebMCPAvailability();
   const [registered, setRegistered] = useState<readonly string[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  // Tool descriptors close over store accessors rather than React state, so a
-  // ref keeps the registration effect from re-running on every render.
+  // Descriptors close over store accessors rather than React state, so the set
+  // registered on mount stays correct for the life of the component and is
+  // captured once rather than tracked.
   const latest = useRef(tools);
-  latest.current = tools;
+
+  const register = useCallback(async (signal: AbortSignal) => {
+    const modelContext = getModelContext();
+    if (!modelContext) return;
+
+    const names: string[] = [];
+    for (const tool of latest.current) {
+      if (signal.aborted) return;
+      try {
+        await modelContext.registerTool(tool, { signal });
+        names.push(tool.name);
+      } catch (cause) {
+        if (signal.aborted) return;
+        setError(
+          `Failed to register "${tool.name}": ${
+            cause instanceof Error ? cause.message : String(cause)
+          }`,
+        );
+      }
+    }
+    if (!signal.aborted) setRegistered(names);
+  }, []);
 
   useEffect(() => {
-    const modelContext = getModelContext();
-    if (!modelContext) {
-      setAvailable(false);
-      return;
-    }
-    setAvailable(true);
-
     const controller = new AbortController();
-    let cancelled = false;
-
-    const register = async () => {
-      const names: string[] = [];
-      for (const tool of latest.current) {
-        if (controller.signal.aborted) return;
-        try {
-          await modelContext.registerTool(tool, { signal: controller.signal });
-          names.push(tool.name);
-        } catch (cause) {
-          if (cancelled) return;
-          setError(
-            `Failed to register "${tool.name}": ${
-              cause instanceof Error ? cause.message : String(cause)
-            }`,
-          );
-        }
-      }
-      if (!cancelled) setRegistered(names);
-    };
-
-    void register();
-
-    return () => {
-      cancelled = true;
-      controller.abort();
-    };
-  }, []);
+    void register(controller.signal);
+    return () => controller.abort();
+  }, [register]);
 
   return { available, registered, error };
-}
-
-/** Feature detection for rendering the setup guidance, updated after hydration. */
-export function useWebMCPAvailability(): boolean | null {
-  const [available, setAvailable] = useState<boolean | null>(null);
-  useEffect(() => {
-    setAvailable(getModelContext() !== null);
-  }, []);
-  return available;
 }
