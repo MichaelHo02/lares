@@ -16,6 +16,7 @@ import { findingKey } from "../plan/ViolationOverlay";
 interface FindingsListProps {
   findings: readonly ClearanceFinding[];
   onHighlight: (key: string | null) => void;
+  embedded?: boolean;
 }
 
 function toSeverity(severity: Severity): FindingSeverity {
@@ -36,7 +37,7 @@ function detailOf(finding: ClearanceFinding): string {
   return `${finding.message} (${finding.measuredMm}mm of ${finding.requiredMm}mm)`;
 }
 
-export function FindingsList({ findings, onHighlight }: FindingsListProps) {
+export function FindingsList({ findings, onHighlight, embedded = false }: FindingsListProps) {
   const summary = summariseFindings(findings);
 
   // Delegated so hovering a row can highlight its zone on the plan without the
@@ -58,54 +59,69 @@ export function FindingsList({ findings, onHighlight }: FindingsListProps) {
     [findings, onHighlight],
   );
 
+  const status = summary.passes
+    ? "All clear"
+    : `${summary.errors} to fix · ${summary.warnings} to consider`;
+
+  const body =
+    findings.length === 0 ? (
+      <p className={`text-body-s text-ink-3 ${embedded ? "mt-2" : "text-body-m text-ink-2 p-4"}`}>
+        Nothing placed yet, or nothing wrong with what is. Violations appear here and
+        are annotated on the plan against the gap they affect.
+      </p>
+    ) : (
+      <div onMouseOver={handleHover} onMouseLeave={() => onHighlight(null)}>
+        <FindingList>
+          {findings.map((finding, index) => {
+            const first = finding.placementIds[0];
+            return (
+              <Finding
+                key={findingKey(finding, index)}
+                severity={toSeverity(finding.severity)}
+                title={FINDING_CODE_TITLES[finding.code]}
+                detail={detailOf(finding)}
+                action={
+                  first ? (
+                    <Button
+                      variant="tertiary"
+                      size="small"
+                      onClick={() => selectPlacement(first)}
+                      onFocus={() => onHighlight(findingKey(finding, index))}
+                      onBlur={() => onHighlight(null)}
+                    >
+                      Show
+                    </Button>
+                  ) : undefined
+                }
+              />
+            );
+          })}
+        </FindingList>
+      </div>
+    );
+
+  if (embedded) {
+    return (
+      <section className="border-t border-hairline pt-3">
+        <div className="flex items-baseline justify-between gap-2">
+          <h2 className="text-label-s font-bold uppercase tracking-wide text-ink-3">
+            Clearances
+          </h2>
+          <span className="text-body-s tabular-nums text-ink-3">{status}</span>
+        </div>
+        {body}
+      </section>
+    );
+  }
+
   return (
     <Panel
       variant="plain"
       title="Clearances"
-      actions={
-        <span className="text-body-m text-ink-2 tabular-nums">
-          {summary.passes
-            ? "All clear"
-            : `${summary.errors} to fix · ${summary.warnings} to consider`}
-        </span>
-      }
+      actions={<span className="text-body-m text-ink-2 tabular-nums">{status}</span>}
       bodyClassName="p-0"
     >
-      {findings.length === 0 ? (
-        <p className="text-body-m text-ink-2 p-4">
-          Nothing placed yet, or nothing wrong with what is. Violations appear here and
-          are annotated on the plan against the gap they affect.
-        </p>
-      ) : (
-        <div onMouseOver={handleHover} onMouseLeave={() => onHighlight(null)}>
-          <FindingList>
-            {findings.map((finding, index) => {
-              const first = finding.placementIds[0];
-              return (
-                <Finding
-                  key={findingKey(finding, index)}
-                  severity={toSeverity(finding.severity)}
-                  title={FINDING_CODE_TITLES[finding.code]}
-                  detail={detailOf(finding)}
-                  action={
-                    first ? (
-                      <Button
-                        variant="tertiary"
-                        size="small"
-                        onClick={() => selectPlacement(first)}
-                        onFocus={() => onHighlight(findingKey(finding, index))}
-                        onBlur={() => onHighlight(null)}
-                      >
-                        Show on plan
-                      </Button>
-                    ) : undefined
-                  }
-                />
-              );
-            })}
-          </FindingList>
-        </div>
-      )}
+      {body}
     </Panel>
   );
 }

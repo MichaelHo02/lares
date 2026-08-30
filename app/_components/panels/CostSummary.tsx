@@ -9,7 +9,7 @@ import { Chip, Panel, Price } from "../ui";
 
 const BUDGET_PRESETS = [1500, 3000, 6000] as const;
 
-export function CostSummary() {
+export function CostSummary({ embedded = false }: { embedded?: boolean }) {
   const placements = usePlannerStore((state) => state.placements);
   const catalog = usePlannerStore((state) => state.catalog);
   const budgetCents = usePlannerStore((state) => state.budgetCents);
@@ -24,16 +24,9 @@ export function CostSummary() {
       ? Math.min(1, cost.totalCents / cost.budgetCents)
       : 0;
 
-  return (
-    <Panel
-      variant="plain"
-      title="Cost"
-      actions={
-        <span className="text-body-m text-ink-2 tabular-nums">
-          {cost.itemCount} item{cost.itemCount === 1 ? "" : "s"}
-        </span>
-      }
-    >
+  const itemLabel = `${cost.itemCount} item${cost.itemCount === 1 ? "" : "s"}`;
+  const body = (
+    <>
       <div className="flex flex-wrap items-end justify-between gap-2">
         <Price amount={cost.totalCents / 100} size="large" />
         {cost.budgetFormatted ? (
@@ -100,6 +93,30 @@ export function CostSummary() {
           );
         })}
       </div>
+    </>
+  );
+
+  if (embedded) {
+    return (
+      <section>
+        <div className="mb-2 flex items-baseline justify-between gap-2">
+          <h2 className="text-label-s font-bold uppercase tracking-wide text-ink-3">
+            Cost
+          </h2>
+          <span className="text-body-s tabular-nums text-ink-3">{itemLabel}</span>
+        </div>
+        {body}
+      </section>
+    );
+  }
+
+  return (
+    <Panel
+      variant="plain"
+      title="Cost"
+      actions={<span className="text-body-m text-ink-2 tabular-nums">{itemLabel}</span>}
+    >
+      {body}
     </Panel>
   );
 }

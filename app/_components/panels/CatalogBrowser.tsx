@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import {
   CATEGORY_GLYPHS,
   CATEGORY_LABELS,
@@ -16,7 +16,7 @@ import { Button, Card, Chip, Input, Panel, Price } from "@/app/_components/ui";
  * IKEA-like catalog browse: filter by room function / style, add to the studio.
  * Placement lands near the room centre so the agent (or user) can refine.
  */
-export function CatalogBrowser() {
+export function CatalogBrowser({ compact = false }: { compact?: boolean }) {
   const room = usePlannerStore((state) => state.room);
   const catalog = usePlannerStore((state) => state.catalog);
   const [category, setCategory] = useState<ProductCategory | "all">("all");
@@ -59,42 +59,81 @@ export function CatalogBrowser() {
     });
   }
 
-  return (
-    <Panel title="Shop furniture" variant="plain" className="shadow-none">
-      <div className="flex flex-col gap-3">
-        <Input
-          label="Search"
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder="Sofa, oak, coastal…"
-        />
+  const filters = (
+    <>
+      <Input
+        label="Search"
+        value={query}
+        onChange={(event) => setQuery(event.target.value)}
+        placeholder="Sofa, oak, coastal…"
+      />
 
-        <div className="flex flex-wrap gap-2">
-          <Chip selected={category === "all"} onClick={() => setCategory("all")}>
-            All
+      <ChipScroller>
+        <Chip selected={category === "all"} onClick={() => setCategory("all")}>
+          All
+        </Chip>
+        {PRODUCT_CATEGORIES.map((item) => (
+          <Chip
+            key={item}
+            selected={category === item}
+            onClick={() => setCategory(item)}
+          >
+            {CATEGORY_LABELS[item]}
           </Chip>
-          {PRODUCT_CATEGORIES.map((item) => (
-            <Chip
-              key={item}
-              selected={category === item}
-              onClick={() => setCategory(item)}
+        ))}
+      </ChipScroller>
+
+      <ChipScroller>
+        <Chip selected={theme === "all"} onClick={() => setTheme("all")}>
+          Any theme
+        </Chip>
+        {themes.slice(0, 10).map((tag) => (
+          <Chip key={tag} selected={theme === tag} onClick={() => setTheme(tag)}>
+            {tag}
+          </Chip>
+        ))}
+      </ChipScroller>
+    </>
+  );
+
+  if (compact) {
+    return (
+      <div className="flex flex-col gap-3 p-3">
+        {filters}
+        <ul className="flex flex-col">
+          {filtered.map((product) => (
+            <li
+              key={product.id}
+              className="flex items-center gap-2 border-b border-hairline py-2"
             >
-              {CATEGORY_LABELS[item]}
-            </Chip>
+              <span className="text-xl" aria-hidden>
+                {CATEGORY_GLYPHS[product.category]}
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="text-body-m truncate font-bold text-ink">{product.name}</p>
+                <p className="text-caption-m text-ink-3">
+                  {CATEGORY_LABELS[product.category]} · {product.widthMm}×
+                  {product.depthMm}mm
+                </p>
+              </div>
+              <Price amount={product.priceCents / 100} size="small" />
+              <Button size="small" onClick={() => addProduct(product.id)}>
+                Add
+              </Button>
+            </li>
           ))}
-        </div>
+        </ul>
+        {filtered.length === 0 ? (
+          <p className="text-body-s text-ink-3">No products match these filters.</p>
+        ) : null}
+      </div>
+    );
+  }
 
-        <div className="flex flex-wrap gap-2">
-          <Chip selected={theme === "all"} onClick={() => setTheme("all")}>
-            Any theme
-          </Chip>
-          {themes.slice(0, 10).map((tag) => (
-            <Chip key={tag} selected={theme === tag} onClick={() => setTheme(tag)}>
-              {tag}
-            </Chip>
-          ))}
-        </div>
-
+  return (
+    <Panel title="Shop furniture" variant="plain">
+      <div className="flex flex-col gap-3">
+        {filters}
         <div className="grid grid-cols-1 gap-0 border-l border-t border-hairline">
           {filtered.slice(0, 24).map((product) => (
             <Card
@@ -117,11 +156,20 @@ export function CatalogBrowser() {
             </Card>
           ))}
         </div>
-
         {filtered.length === 0 ? (
           <p className="text-body-s text-ink-3">No products match these filters.</p>
         ) : null}
       </div>
     </Panel>
+  );
+}
+
+function ChipScroller({ children }: { children: ReactNode }) {
+  return (
+    <div className="min-w-0 overflow-x-auto [scrollbar-width:thin]">
+      <div className="flex w-max flex-nowrap gap-2 px-0.5 py-0.5 [&>*]:shrink-0 [&>*]:whitespace-nowrap">
+        {children}
+      </div>
+    </div>
   );
 }

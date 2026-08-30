@@ -8,12 +8,11 @@ import type { Finding } from "@/lib/clearance/findings";
 import { resolveLayout } from "@/lib/domain/placement";
 import { usePlannerStore } from "@/lib/store/store";
 import { DEFAULT_WALL_HEIGHT_MM, mmToM } from "@/lib/studio/units";
-import { Chip } from "@/app/_components/ui";
 import { StudioInteractionProvider, useStudioInteraction } from "./StudioInteraction";
 import { StudioScene } from "./StudioScene";
 import { useStudioKeyboard } from "./useStudioKeyboard";
 
-type ViewMode = "perspective" | "top";
+export type ViewMode = "perspective" | "front" | "top";
 
 interface StudioViewportProps {
   findings: readonly Finding[];
@@ -40,6 +39,7 @@ function StudioViewportInner({ findings, highlightedKey }: StudioViewportProps) 
   const selectedId = usePlannerStore((state) => state.selectedPlacementId);
   const { orbitEnabled } = useStudioInteraction();
   const [viewMode, setViewMode] = useState<ViewMode>("perspective");
+  const [autoFollow, setAutoFollow] = useState(true);
 
   const resolved = useMemo(
     () => resolveLayout(placements, catalog).resolved,
@@ -50,51 +50,60 @@ function StudioViewportInner({ findings, highlightedKey }: StudioViewportProps) 
   const widthM = mmToM(room.widthMm);
   const depthM = mmToM(room.depthMm);
   const wallHeightM = mmToM(DEFAULT_WALL_HEIGHT_MM);
-  const target: [number, number, number] = [widthM / 2, 0, depthM / 2];
+  const selected = resolved.find((entry) => entry.placement.id === selectedId);
+  const target = useMemo<[number, number, number]>(() => {
+    if (autoFollow && selected) {
+      return [
+        mmToM(selected.footprint.x) + mmToM(selected.footprint.width) / 2,
+        0,
+        mmToM(selected.footprint.y) + mmToM(selected.footprint.depth) / 2,
+      ];
+    }
+    return [widthM / 2, 0, depthM / 2];
+  }, [autoFollow, selected, widthM, depthM]);
   const perspectivePosition: [number, number, number] = [
     widthM * 0.85,
     wallHeightM * 1.6,
     depthM * 1.35,
+  ];
+  const frontPosition: [number, number, number] = [
+    widthM / 2,
+    wallHeightM * 0.7,
+    depthM + Math.max(2.2, depthM * 0.45),
   ];
   const topPosition: [number, number, number] = [
     widthM / 2,
     Math.max(widthM, depthM) * 1.4,
     depthM / 2,
   ];
+  const cameraPosition =
+    viewMode === "front"
+      ? frontPosition
+      : viewMode === "top"
+        ? topPosition
+        : perspectivePosition;
   const orthoZoom = 80 / Math.max(widthM, depthM);
 
   return (
     <div className="relative h-full w-full bg-canvas-bg">
-      <div className="absolute right-3 top-3 z-10 flex gap-2">
-        <Chip
-          selected={viewMode === "perspective"}
-          onClick={() => setViewMode("perspective")}
-        >
-          Perspective
-        </Chip>
-        <Chip selected={viewMode === "top"} onClick={() => setViewMode("top")}>
-          Top
-        </Chip>
-      </div>
-
       <Canvas shadows gl={{ antialias: true }}>
         <color attach="background" args={["#faf9f7"]} />
         <Suspense fallback={null}>
-          {viewMode === "perspective" ? (
-            <PerspectiveCamera
-              makeDefault
-              position={perspectivePosition}
-              fov={42}
-              near={0.05}
-              far={80}
-            />
-          ) : (
+          {viewMode === "top" ? (
             <OrthographicCamera
               makeDefault
               position={topPosition}
               zoom={orthoZoom}
               near={0.1}
               far={200}
+            />
+          ) : (
+            <PerspectiveCamera
+              makeDefault
+              position={cameraPosition}
+              fov={42}
+              near={0.05}
+              far={80}
             />
           )}
           <CameraLookAt target={target} />
@@ -129,10 +138,51 @@ function StudioViewportInner({ findings, highlightedKey }: StudioViewportProps) 
         </Suspense>
       </Canvas>
 
-      <div className="pointer-events-none absolute bottom-3 left-3 rounded-card border border-hairline bg-surface/90 px-3 py-2 text-caption-m text-ink-2 backdrop-blur-sm">
-        Drag to move · arrows nudge · R rotate · Delete remove · Top for plan view
+      <div
+        role="group"
+        aria-label="Scene viewing angle"
+        className="absolute bottom-4 left-3 z-10 flex flex-nowrap items-center gap-0.5 rounded-pill border border-hairline bg-surface/95 p-1 shadow-sheet backdrop-blur-sm"
+      >
+        <ViewChip selected={autoFollow} onClick={() => setAutoFollow((value) => !value)}>
+          Auto follow
+        </ViewChip>
+        <ViewChip
+          selected={viewMode === "perspective"}
+          onClick={() => setViewMode("perspective")}
+        >
+          Perspective
+        </ViewChip>
+        <ViewChip selected={viewMode === "front"} onClick={() => setViewMode("front")}>
+          Front
+        </ViewChip>
+        <ViewChip selected={viewMode === "top"} onClick={() => setViewMode("top")}>
+          Top
+        </ViewChip>
       </div>
     </div>
+  );
+}
+
+function ViewChip({
+  selected,
+  onClick,
+  children,
+}: {
+  selected: boolean;
+  onClick: () => void;
+  children: string;
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={selected}
+      onClick={onClick}
+      className={`min-h-8 whitespace-nowrap rounded-pill px-3 text-label-s font-bold ${
+        selected ? "bg-surface-sunken text-ink" : "text-ink-2 hover:bg-subtle-hover"
+      }`}
+    >
+      {children}
+    </button>
   );
 }
 
