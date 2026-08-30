@@ -11,10 +11,12 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 ## Learned User Preferences
 
 - Use pnpm for this repo, not npm or yarn.
-- Product language should read as furniture retail and living-at-home, not "clearance" branding or a developer-tool UI.
+- Product language should read as furniture retail and living-at-home, not "clearance" branding or a developer-tool UI. Keep Cost in Shop as a running total; do not show a shopper-facing "clearances" list or budget "keep it under" chips.
 - Treat `docs/design.md` as the visual source of truth and implement IKEA/Skapa tokens faithfully rather than inventing a palette.
-- Give the 3D/floor-plan viewport the most space; do not build a dense properties-panel dashboard around it.
+- Give the 3D/floor-plan viewport the most space; do not block it with overlays or a dense properties-panel dashboard. WebMCP help belongs on hover of the status chip.
 - Drive room labels and dimensions from live planner state, not hardcoded demo copy.
+- Start from an empty studio: no canned default room or furniture; the agent or user describes or draws the room first.
+- Users and agents should both be able to edit the same studio (name, size, catalog).
 
 ## Learned Workspace Facts
 
@@ -25,4 +27,4 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Domain geometry uses millimetre integers; clearance validation lives in `lib/clearance`, catalog/cost/store/WebMCP under `lib/`.
 - `docs/design.md` is the extracted IKEA/Skapa design spec; `README.md` is the product and tool-surface source of truth.
 - The hero surface is the studio 3D viewport (`app/_components/studio`); the 2D floor plan is in `app/_components/plan`; UI primitives are in `app/_components/ui`.
-- Target clients are ChatGPT's in-app browser and Chrome 149+ with WebMCP testing enabled; rearranging is free, checkout is a gated sensitive action.
+- Target clients are ChatGPT's in-app browser and Chrome 149+ with WebMCP testing enabled; Cursor's in-IDE browser is not a WebMCP host. Rearranging is free; checkout is a gated sensitive action.
