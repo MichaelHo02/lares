@@ -45,10 +45,11 @@ export function HowToUse({ available, registeredCount, error }: HowToUseProps) {
       }
     >
       <p className="text-body-m text-ink-2">
-        Lares is a 3D furniture studio you and an agent share. Describe the room,
-        pick a theme, and the agent places catalog pieces through {toolCount} WebMCP
-        tools while you watch the viewport update. Drag to nudge, double-click to
-        rotate, and shop from the sidebar like a normal retailer.
+        Lares is a 3D furniture studio you and an agent share. It starts empty:
+        describe the room first, then pick a theme. The agent places catalog pieces
+        through {toolCount} WebMCP tools while you watch the viewport update. Drag
+        to nudge, double-click to rotate, and shop from the sidebar like a normal
+        retailer.
       </p>
 
       {!detected && available !== null ? (

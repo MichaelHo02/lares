@@ -9,3 +9,6 @@ export function mmToM(mm: Mm): number {
 
 /** Default ceiling height until rooms carry an explicit height field. */
 export const DEFAULT_WALL_HEIGHT_MM = 2700 as Mm;
+
+/** Camera framing for the empty studio before a room exists. */
+export const EMPTY_STUDIO_SPAN_MM = 4000 as Mm;

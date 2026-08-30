@@ -100,7 +100,7 @@ function obstructionFrom(entry: ToolArguments, index: number): Obstruction {
 const defineRoomTool: ToolDescriptor = {
   name: "define_room",
   description:
-    "Create or replace the room from a description of the space: its size in millimetres, its doors and windows, and any fixed obstructions such as a bulkhead or a column. Doors record their hinge side and swing so the arc can be kept clear.",
+    "The studio starts empty. Create or replace the room from a description of the space: its size in millimetres, its doors and windows, and any fixed obstructions such as a bulkhead or a column. Call this first, before furnishing. Doors record their hinge side and swing so the arc can be kept clear.",
   inputSchema: {
     type: "object",
     properties: {
@@ -166,7 +166,7 @@ const defineRoomTool: ToolDescriptor = {
 const placeItemTool: ToolDescriptor = {
   name: "place_item",
   description:
-    "Add a catalog product to the room at a position and rotation. Returns the new placement together with every clearance finding the placement introduced, so a bad position can be corrected immediately.",
+    "Add a catalog product to the room at a position and rotation. Returns the new placement together with every clearance finding the placement introduced, so a bad position can be corrected immediately. Requires a defined room.",
   inputSchema: {
     type: "object",
     properties: {
@@ -408,7 +408,7 @@ const setBudgetTool: ToolDescriptor = {
 const furnishRoomTool: ToolDescriptor = {
   name: "furnish_room",
   description:
-    "Furnish the current room for a function (living_room, bedroom, home_office, dining) and optional style theme. Picks matching catalog products, places a starter layout in the 3D studio, and returns clearance findings so you can inspect and refine. Prefer this over hand-placing every item when the user says 'furnish my living room in warm timber'.",
+    "Furnish the current room for a function (living_room, bedroom, home_office, dining) and optional style theme. Picks matching catalog products, places a starter layout in the 3D studio, and returns clearance findings so you can inspect and refine. Requires a defined room — call define_room first if the studio is empty. Prefer this over hand-placing every item when the user says 'furnish my living room in warm timber'.",
   inputSchema: {
     type: "object",
     properties: {

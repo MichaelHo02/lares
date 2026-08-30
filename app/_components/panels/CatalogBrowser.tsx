@@ -46,6 +46,7 @@ export function CatalogBrowser({ compact = false }: { compact?: boolean }) {
   }, [catalog, category, query, theme]);
 
   function addProduct(productId: string) {
+    if (!room) return;
     const product = catalog.find((item) => item.id === productId);
     if (!product) return;
     const x = Math.max(200, Math.round(room.widthMm / 2 - product.widthMm / 2));
@@ -117,7 +118,12 @@ export function CatalogBrowser({ compact = false }: { compact?: boolean }) {
                 </p>
               </div>
               <Price amount={product.priceCents / 100} size="small" />
-              <Button size="small" onClick={() => addProduct(product.id)}>
+              <Button
+                size="small"
+                disabled={!room}
+                title={room ? undefined : "Describe the room first"}
+                onClick={() => addProduct(product.id)}
+              >
                 Add
               </Button>
             </li>
@@ -147,7 +153,13 @@ export function CatalogBrowser({ compact = false }: { compact?: boolean }) {
                 </div>
               }
               action={
-                <Button size="small" fullWidth onClick={() => addProduct(product.id)}>
+                <Button
+                  size="small"
+                  fullWidth
+                  disabled={!room}
+                  title={room ? undefined : "Describe the room first"}
+                  onClick={() => addProduct(product.id)}
+                >
                   Add to room
                 </Button>
               }

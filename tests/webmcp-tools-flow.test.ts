@@ -35,6 +35,24 @@ describe("WebMCP tool create/inspect/refine loop", () => {
     }
   });
 
+  it("starts empty so the agent must describe the room first", async () => {
+    const room = await callTool("get_room", {});
+    expect(room.defined).toBe(false);
+    expect(room.nextTool).toBe("define_room");
+
+    const furnished = await callTool("furnish_room", { roomFunction: "living_room" });
+    expect(furnished.ok).toBe(false);
+    expect(String(furnished.error)).toMatch(/define_room/);
+
+    const placed = await callTool("place_item", {
+      productId: "sofa-kivik-2",
+      x: 400,
+      y: 400,
+      rotation: 0,
+    });
+    expect(placed.ok).toBe(false);
+  });
+
   it("runs define → furnish → inspect → refine through tool execute handlers", async () => {
     const defined = await callTool("define_room", {
       name: "Agent living",
@@ -55,6 +73,7 @@ describe("WebMCP tool create/inspect/refine loop", () => {
     expect(defined.ok).toBe(true);
 
     const room = await callTool("get_room", {});
+    expect(room.defined).toBe(true);
     expect(room.name).toBe("Agent living");
     expect(room.widthMm).toBe(4200);
 

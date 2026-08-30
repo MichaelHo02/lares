@@ -9,6 +9,12 @@ describe("agent studio flow (store)", () => {
     usePlannerStore.setState(initialPlannerState());
   });
 
+  it("starts with no room so describing the space is the first step", () => {
+    const state = usePlannerStore.getState();
+    expect(state.room).toBeNull();
+    expect(state.placements).toEqual([]);
+  });
+
   it("define_room then furnish_room updates the shared studio state", () => {
     const roomResult = defineRoom({
       name: "Studio living",
@@ -36,8 +42,8 @@ describe("agent studio flow (store)", () => {
       keepPlacements: false,
     });
     expect(roomResult.ok).toBe(true);
-    expect(usePlannerStore.getState().room.name).toBe("Studio living");
-    expect(usePlannerStore.getState().room.openings).toHaveLength(2);
+    expect(usePlannerStore.getState().room?.name).toBe("Studio living");
+    expect(usePlannerStore.getState().room?.openings).toHaveLength(2);
 
     const furnished = furnishRoom({
       roomFunction: "living_room",
@@ -49,10 +55,11 @@ describe("agent studio flow (store)", () => {
     expect(furnished.notes).toBeDefined();
 
     const state = usePlannerStore.getState();
+    expect(state.room).not.toBeNull();
     expect(state.placements.length).toBeGreaterThanOrEqual(3);
     expect(state.budgetCents).toBe(400_000);
 
-    const findings = checkLayout(state.room, state.placements, state.catalog).findings;
+    const findings = checkLayout(state.room!, state.placements, state.catalog).findings;
     // Findings may be non-empty — that is the inspect/refine signal for the agent.
     expect(Array.isArray(findings)).toBe(true);
     expect(furnished.allFindings).toBeDefined();

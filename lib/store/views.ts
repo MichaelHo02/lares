@@ -43,6 +43,7 @@ export function placementViews(state: PlannerState): PlacementView[] {
 }
 
 export function findingsFor(state: PlannerState): readonly Finding[] {
+  if (!state.room) return [];
   return checkLayout(state.room, state.placements, state.catalog).findings;
 }
 
@@ -50,6 +51,7 @@ export function findingsForLayout(
   state: PlannerState,
   placements: readonly Placement[],
 ): readonly Finding[] {
+  if (!state.room) return [];
   return checkLayout(state.room, placements, state.catalog).findings;
 }
 

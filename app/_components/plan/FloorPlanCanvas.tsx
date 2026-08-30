@@ -3,6 +3,7 @@
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { Finding } from "@/lib/clearance/findings";
 import { resolveLayout } from "@/lib/domain/placement";
+import type { Room } from "@/lib/domain/room";
 import {
   IDENTITY_VIEW,
   MAX_ZOOM,
@@ -30,6 +31,21 @@ interface FloorPlanCanvasProps {
 
 export function FloorPlanCanvas({ findings, highlightedKey }: FloorPlanCanvasProps) {
   const room = usePlannerStore((state) => state.room);
+  if (!room) {
+    return (
+      <div className="bg-canvas-bg flex h-full w-full items-center justify-center p-6">
+        <p className="text-body-m text-ink-3">Describe a room to see the floor plan.</p>
+      </div>
+    );
+  }
+  return <FloorPlanCanvasReady room={room} findings={findings} highlightedKey={highlightedKey} />;
+}
+
+function FloorPlanCanvasReady({
+  room,
+  findings,
+  highlightedKey,
+}: FloorPlanCanvasProps & { room: Room }) {
   const placements = usePlannerStore((state) => state.placements);
   const catalog = usePlannerStore((state) => state.catalog);
   const selectedId = usePlannerStore((state) => state.selectedPlacementId);

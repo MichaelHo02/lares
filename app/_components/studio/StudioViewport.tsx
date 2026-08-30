@@ -7,7 +7,7 @@ import { MOUSE, TOUCH } from "three";
 import type { Finding } from "@/lib/clearance/findings";
 import { resolveLayout } from "@/lib/domain/placement";
 import { usePlannerStore } from "@/lib/store/store";
-import { DEFAULT_WALL_HEIGHT_MM, mmToM } from "@/lib/studio/units";
+import { DEFAULT_WALL_HEIGHT_MM, EMPTY_STUDIO_SPAN_MM, mmToM } from "@/lib/studio/units";
 import { StudioInteractionProvider, useStudioInteraction } from "./StudioInteraction";
 import { StudioScene } from "./StudioScene";
 import { useStudioKeyboard } from "./useStudioKeyboard";
@@ -47,8 +47,8 @@ function StudioViewportInner({ findings, highlightedKey }: StudioViewportProps) 
   );
   useStudioKeyboard(resolved, selectedId);
 
-  const widthM = mmToM(room.widthMm);
-  const depthM = mmToM(room.depthMm);
+  const widthM = mmToM(room?.widthMm ?? EMPTY_STUDIO_SPAN_MM);
+  const depthM = mmToM(room?.depthMm ?? EMPTY_STUDIO_SPAN_MM);
   const wallHeightM = mmToM(DEFAULT_WALL_HEIGHT_MM);
   const selected = resolved.find((entry) => entry.placement.id === selectedId);
   const target = useMemo<[number, number, number]>(() => {

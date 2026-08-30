@@ -1,36 +1,13 @@
 import { CATALOG } from "../catalog/products";
-import { createRectangularRoom, type Room } from "../domain/room";
 import type { PlannerState } from "./types";
 
-export const DEFAULT_ROOM: Room = createRectangularRoom({
-  name: "Living room",
-  widthMm: 4200,
-  depthMm: 3800,
-  openings: [
-    {
-      id: "door-entry",
-      type: "door",
-      wall: "north",
-      offsetMm: 400,
-      widthMm: 820,
-      heightMm: 2040,
-      swing: { hingeSide: "start", direction: "inward" },
-    },
-    {
-      id: "window-east",
-      type: "window",
-      wall: "east",
-      offsetMm: 900,
-      widthMm: 1800,
-      heightMm: 1200,
-    },
-  ],
-  obstructions: [],
-});
+/** Returned by tools and mutations when the studio has no room yet. */
+export const NO_ROOM_DEFINED =
+  "No room is defined yet. Call define_room from the user's description of the space before placing furniture.";
 
 export function initialPlannerState(): PlannerState {
   return {
-    room: DEFAULT_ROOM,
+    room: null,
     placements: [],
     catalog: CATALOG,
     budgetCents: null,

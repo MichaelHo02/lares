@@ -32,7 +32,7 @@ export function requestCheckout(): CheckoutResult {
       request: null,
       cost,
       blockingFindings: [],
-      message: "Nothing to buy — the room is empty. Place some items first.",
+      message: "Nothing to buy — describe the room and place some items first.",
     };
   }
 

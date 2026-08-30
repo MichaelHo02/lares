@@ -33,12 +33,23 @@ const READ_ONLY = { readOnlyHint: true, idempotentHint: true } as const;
 const getRoom: ToolDescriptor = {
   name: "get_room",
   description:
-    "Read the current room: its size in millimetres, its walls, every door and window with its position and swing, and any fixed obstructions. Call this before placing anything so coordinates are correct.",
+    "Read the current room: its size in millimetres, its walls, every door and window with its position and swing, and any fixed obstructions. The studio starts empty. If defined is false, call define_room from the user's description before placing anything.",
   inputSchema: EMPTY_SCHEMA,
   annotations: READ_ONLY,
   execute: () => {
     const { room } = plannerState();
+    if (!room) {
+      return toolResult({
+        defined: false,
+        summary:
+          "The studio is empty. Call define_room from the user's description of the space (size, doors, windows, fixed obstructions) before placing furniture.",
+        coordinateSystem:
+          "Once a room exists, origin (0,0) is the north-west corner. x increases east, y increases south. All values are millimetres.",
+        nextTool: "define_room",
+      });
+    }
     return toolResult({
+      defined: true,
       name: room.name,
       widthMm: room.widthMm,
       depthMm: room.depthMm,
@@ -140,7 +151,7 @@ const searchCatalogTool: ToolDescriptor = {
   annotations: READ_ONLY,
   execute: (args) => {
     const state = plannerState();
-    const doorWidth = narrowestDoorWidth(state.room);
+    const doorWidth = state.room ? narrowestDoorWidth(state.room) : null;
     const mustFitThroughMm =
       optionalInteger(args, "mustFitThroughMm", 300, 4000) ??
       (doorWidth === null
@@ -189,11 +200,20 @@ const searchCatalogTool: ToolDescriptor = {
 const checkLayoutTool: ToolDescriptor = {
   name: "check_layout",
   description:
-    "Validate the current layout against real circulation standards and return every violation as a structured finding with a code, a severity, the placements involved, and the measured against required millimetres. Call this after placing or moving anything to see whether the change works.",
+    "Validate the current layout against real circulation standards and return every violation as a structured finding with a code, a severity, the placements involved, and the measured against required millimetres. Call this after placing or moving anything to see whether the change works. Requires a defined room.",
   inputSchema: EMPTY_SCHEMA,
   annotations: READ_ONLY,
   execute: () => {
     const state = plannerState();
+    if (!state.room) {
+      return toolResult({
+        ok: false,
+        defined: false,
+        summary:
+          "No room is defined yet. Call define_room from the user's description of the space before checking clearances.",
+        nextTool: "define_room",
+      });
+    }
     const { findings, summary } = checkLayout(
       state.room,
       state.placements,

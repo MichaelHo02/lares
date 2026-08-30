@@ -12,6 +12,7 @@ import {
   nextPlacementId,
   type MutationResult,
 } from "./results";
+import { NO_ROOM_DEFINED } from "./defaults";
 import { logActivity, patchPlanner, plannerState } from "./store";
 import {
   EMPTY_FINDING_SUMMARY,
@@ -90,10 +91,15 @@ export interface DefineRoomInput {
   keepPlacements?: boolean;
 }
 
+function missingRoom(): MutationResult {
+  return failure(NO_ROOM_DEFINED, EMPTY_FINDING_SUMMARY);
+}
+
 export function defineRoom(input: DefineRoomInput): MutationResult {
   const state = plannerState();
+  const name = input.name?.trim();
   const room = createRectangularRoom({
-    name: input.name ?? state.room.name,
+    name: name && name.length > 0 ? name : "Room",
     widthMm: input.widthMm,
     depthMm: input.depthMm,
     openings: input.openings ?? [],
@@ -130,6 +136,7 @@ export interface PlaceItemInput {
 
 export function placeItem(input: PlaceItemInput): MutationResult {
   const state = plannerState();
+  if (!state.room) return missingRoom();
   if (!productExists(state, input.productId)) {
     return failure(
       `No product with id "${input.productId}". Call search_catalog to get valid ids.`,
@@ -166,6 +173,7 @@ export interface MoveItemInput {
 
 export function moveItem(input: MoveItemInput): MutationResult {
   const state = plannerState();
+  if (!state.room) return missingRoom();
   const existing = findPlacement(state, input.placementId);
   if (!existing) {
     return failure(
@@ -194,6 +202,7 @@ export interface RotateItemInput {
 
 export function rotateItem(input: RotateItemInput): MutationResult {
   const state = plannerState();
+  if (!state.room) return missingRoom();
   const existing = findPlacement(state, input.placementId);
   if (!existing) {
     return failure(
@@ -219,6 +228,7 @@ export function removeItem(
   source: ActivitySource = "agent",
 ): MutationResult {
   const state = plannerState();
+  if (!state.room) return missingRoom();
   const existing = findPlacement(state, placementId);
   if (!existing) {
     return failure(
@@ -246,6 +256,7 @@ export interface SwapProductInput {
 
 export function swapProduct(input: SwapProductInput): MutationResult {
   const state = plannerState();
+  if (!state.room) return missingRoom();
   const existing = findPlacement(state, input.placementId);
   if (!existing) {
     return failure(
@@ -285,6 +296,7 @@ export function applyLayout(
   replaceExisting: boolean,
 ): MutationResult {
   const state = plannerState();
+  if (!state.room) return missingRoom();
 
   const unknown = items
     .map((item) => item.productId)
@@ -351,6 +363,14 @@ export function furnishRoom(input: FurnishRoomInput): MutationResult & {
   proposalTotalCents: Cents;
 } {
   const state = plannerState();
+  if (!state.room) {
+    return {
+      ...missingRoom(),
+      notes: [],
+      proposalTotalCents: 0 as Cents,
+    };
+  }
+
   const proposal = proposeFurnish({
     room: state.room,
     catalog: state.catalog,

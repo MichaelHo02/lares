@@ -30,10 +30,10 @@ export function StudioTopBar({
         <p className="text-heading-s font-bold text-ink">
           <span className="rounded-badge bg-accent-yellow px-1.5">Lares</span>
           <span className="text-ink-3"> / </span>
-          <span className="text-ink-2">{room.name}</span>
+          <span className="text-ink-2">{room?.name ?? "New studio"}</span>
         </p>
         <p className="text-caption-m mt-0.5 tabular-nums text-ink-3">
-          {room.widthMm} × {room.depthMm}mm
+          {room ? `${room.widthMm} × ${room.depthMm}mm` : "Describe a room to begin"}
         </p>
       </div>
 

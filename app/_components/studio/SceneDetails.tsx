@@ -123,6 +123,7 @@ function TabChip({
 }
 
 function ScenePane() {
+  const room = usePlannerStore((state) => state.room);
   const placements = usePlannerStore((state) => state.placements);
   const catalog = usePlannerStore((state) => state.catalog);
   const selectedId = usePlannerStore((state) => state.selectedPlacementId);
@@ -148,7 +149,9 @@ function ScenePane() {
         </div>
         {resolved.length === 0 ? (
           <p className="text-body-s mt-2 text-ink-3">
-            Nothing placed yet. Ask the agent to furnish, or open Shop.
+            {room
+              ? "Nothing placed yet. Ask the agent to furnish, or open Shop."
+              : "No room yet. Describe the size, doors, and windows first."}
           </p>
         ) : (
           <ul className="mt-2 flex flex-col">
