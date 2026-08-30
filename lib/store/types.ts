@@ -22,7 +22,7 @@ export interface CheckoutRequest {
 }
 
 export interface PlannerState {
-  /** Null until the agent or shopper describes the space with `define_room`. */
+  /** Null until the shopper or agent sets the space with `defineRoom`. */
   room: Room | null;
   placements: readonly Placement[];
   catalog: Catalog;

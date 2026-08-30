@@ -16,6 +16,31 @@ export function mmToMetres(mm: Mm): number {
   return mm / MM_PER_METRE;
 }
 
+/**
+ * Accepts a shopper-typed size: metres when the number is small ("4.2"),
+ * millimetres when it already looks like an internal measure ("4200").
+ */
+export function parseRoomDimensionToMm(
+  raw: string,
+  minimumMm: Mm,
+  maximumMm: Mm,
+): Mm | null {
+  const trimmed = raw.trim().replace(",", ".");
+  if (!trimmed) return null;
+  const value = Number(trimmed);
+  if (!Number.isFinite(value) || value <= 0) return null;
+  const mm = value >= 100 ? Math.round(value) : metresToMm(value);
+  if (mm < minimumMm || mm > maximumMm) return null;
+  return mm;
+}
+
+/** Compact metres string for inline size fields (4200 → "4.2"). */
+export function formatMetresInput(mm: Mm): string {
+  const metres = mmToMetres(mm);
+  if (Number.isInteger(metres)) return String(metres);
+  return metres.toFixed(2).replace(/\.?0+$/, "");
+}
+
 export function formatMm(mm: Mm): string {
   return `${mm}mm`;
 }

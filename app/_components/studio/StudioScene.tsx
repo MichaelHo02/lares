@@ -13,10 +13,10 @@ import { RoomMesh } from "./RoomMesh";
 
 interface StudioSceneProps {
   findings: readonly Finding[];
-  highlightedKey: string | null;
+  highlightedKey?: string | null;
 }
 
-export function StudioScene({ findings, highlightedKey }: StudioSceneProps) {
+export function StudioScene({ findings, highlightedKey = null }: StudioSceneProps) {
   const room = usePlannerStore((state) => state.room);
   const placements = usePlannerStore((state) => state.placements);
   const catalog = usePlannerStore((state) => state.catalog);

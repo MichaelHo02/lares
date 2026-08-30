@@ -16,7 +16,7 @@ export type ViewMode = "perspective" | "front" | "top";
 
 interface StudioViewportProps {
   findings: readonly Finding[];
-  highlightedKey: string | null;
+  highlightedKey?: string | null;
 }
 
 /**
@@ -24,7 +24,7 @@ interface StudioViewportProps {
  * Click furniture to select; drag to move; arrows/R/Delete for precise edits.
  * Agent WebMCP mutations update the same store, so this view follows along.
  */
-export function StudioViewport({ findings, highlightedKey }: StudioViewportProps) {
+export function StudioViewport({ findings, highlightedKey = null }: StudioViewportProps) {
   return (
     <StudioInteractionProvider>
       <StudioViewportInner findings={findings} highlightedKey={highlightedKey} />
@@ -32,7 +32,7 @@ export function StudioViewport({ findings, highlightedKey }: StudioViewportProps
   );
 }
 
-function StudioViewportInner({ findings, highlightedKey }: StudioViewportProps) {
+function StudioViewportInner({ findings, highlightedKey = null }: StudioViewportProps) {
   const room = usePlannerStore((state) => state.room);
   const placements = usePlannerStore((state) => state.placements);
   const catalog = usePlannerStore((state) => state.catalog);

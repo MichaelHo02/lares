@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { Finding } from "@/lib/clearance/findings";
 import { CATEGORY_LABELS } from "@/lib/domain/product";
 import { resolvePlacement } from "@/lib/domain/placement";
 import { removeItem, rotateItem, selectPlacement } from "@/lib/store/operations";
@@ -9,28 +8,20 @@ import { usePlannerStore } from "@/lib/store/store";
 import { nextRotation } from "../plan/usePlanInteraction";
 import { CatalogBrowser } from "../panels/CatalogBrowser";
 import { CostSummary } from "../panels/CostSummary";
-import { FindingsList } from "../panels/FindingsList";
 import { Button, Chip, Price } from "../ui";
 
-type DetailsTab = "scene" | "shop" | "cost";
+type DetailsTab = "scene" | "shop";
 
 interface SceneDetailsProps {
-  findings: readonly Finding[];
-  onHighlight: (key: string | null) => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
 /**
- * Docked right sidebar: scene objects, shop, and cost. The 3D canvas keeps
- * the remaining width instead of this sitting as a floating sheet.
+ * Docked right sidebar: scene objects and shop. The 3D canvas keeps the
+ * remaining width instead of this sitting as a floating sheet.
  */
-export function SceneDetails({
-  findings,
-  onHighlight,
-  open,
-  onOpenChange,
-}: SceneDetailsProps) {
+export function SceneDetails({ open, onOpenChange }: SceneDetailsProps) {
   const [tab, setTab] = useState<DetailsTab>("scene");
   const placementCount = usePlannerStore((state) => state.placements.length);
 
@@ -62,34 +53,24 @@ export function SceneDetails({
         <TabChip current={tab} id="shop" onSelect={setTab}>
           Shop
         </TabChip>
-        <TabChip current={tab} id="cost" onSelect={setTab}>
-          Cost
-        </TabChip>
       </div>
-      <div className="min-h-0 flex-1 overflow-y-auto">
-        {tabContent(tab, findings, onHighlight)}
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        {tabContent(tab)}
       </div>
     </aside>
   );
 }
 
-function tabContent(
-  tab: DetailsTab,
-  findings: readonly Finding[],
-  onHighlight: (key: string | null) => void,
-) {
+function tabContent(tab: DetailsTab) {
   switch (tab) {
     case "scene":
-      return <ScenePane />;
-    case "shop":
-      return <CatalogBrowser compact />;
-    case "cost":
       return (
-        <div className="flex flex-col gap-4 p-3">
-          <CostSummary embedded />
-          <FindingsList embedded findings={findings} onHighlight={onHighlight} />
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          <ScenePane />
         </div>
       );
+    case "shop":
+      return <ShopPane />;
     default: {
       const exhaustive: never = tab;
       return exhaustive;
@@ -119,6 +100,17 @@ function TabChip({
     >
       {children}
     </Chip>
+  );
+}
+
+function ShopPane() {
+  return (
+    <div className="flex min-h-0 flex-1 flex-col">
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        <CatalogBrowser compact />
+      </div>
+      <CostSummary />
+    </div>
   );
 }
 

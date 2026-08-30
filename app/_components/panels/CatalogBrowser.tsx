@@ -121,7 +121,7 @@ export function CatalogBrowser({ compact = false }: { compact?: boolean }) {
               <Button
                 size="small"
                 disabled={!room}
-                title={room ? undefined : "Describe the room first"}
+                title={room ? undefined : "Draw the room first"}
                 onClick={() => addProduct(product.id)}
               >
                 Add
@@ -157,7 +157,7 @@ export function CatalogBrowser({ compact = false }: { compact?: boolean }) {
                   size="small"
                   fullWidth
                   disabled={!room}
-                  title={room ? undefined : "Describe the room first"}
+                  title={room ? undefined : "Draw the room first"}
                   onClick={() => addProduct(product.id)}
                 >
                   Add to room

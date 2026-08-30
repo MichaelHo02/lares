@@ -89,14 +89,48 @@ export interface DefineRoomInput {
   openings?: Room["openings"];
   obstructions?: Room["obstructions"];
   keepPlacements?: boolean;
+  source?: ActivitySource;
+}
+
+export interface PatchRoomInput {
+  name?: string;
+  widthMm?: Mm;
+  depthMm?: Mm;
+  source?: ActivitySource;
 }
 
 function missingRoom(): MutationResult {
   return failure(NO_ROOM_DEFINED, EMPTY_FINDING_SUMMARY);
 }
 
+function roomSummary(input: {
+  previous: Room | null;
+  name: string;
+  widthMm: Mm;
+  depthMm: Mm;
+  openingCount: number;
+  obstructionCount: number;
+}): string {
+  const { previous, name, widthMm, depthMm, openingCount, obstructionCount } = input;
+  const sizeChanged =
+    !previous || previous.widthMm !== widthMm || previous.depthMm !== depthMm;
+  const nameChanged = Boolean(previous && previous.name !== name);
+
+  if (previous && nameChanged && !sizeChanged) {
+    return `Renamed the room to ${name}.`;
+  }
+  if (previous && !nameChanged && sizeChanged) {
+    return `Room set to ${widthMm}mm × ${depthMm}mm.`;
+  }
+  return (
+    `Room set to ${widthMm}mm × ${depthMm}mm with ` +
+    `${openingCount} opening(s) and ${obstructionCount} obstruction(s).`
+  );
+}
+
 export function defineRoom(input: DefineRoomInput): MutationResult {
   const state = plannerState();
+  const previous = state.room;
   const name = input.name?.trim();
   const room = createRectangularRoom({
     name: name && name.length > 0 ? name : "Room",
@@ -110,10 +144,15 @@ export function defineRoom(input: DefineRoomInput): MutationResult {
   patchPlanner({ room, placements, checkoutState: "idle", checkoutRequest: null });
 
   const after = findingsForLayout(plannerState(), placements);
-  const summary =
-    `Room set to ${input.widthMm}mm × ${input.depthMm}mm with ` +
-    `${room.openings.length} opening(s) and ${room.obstructions.length} obstruction(s).`;
-  logActivity("agent", summary);
+  const summary = roomSummary({
+    previous,
+    name: room.name,
+    widthMm: input.widthMm,
+    depthMm: input.depthMm,
+    openingCount: room.openings.length,
+    obstructionCount: room.obstructions.length,
+  });
+  logActivity(input.source ?? "agent", summary);
 
   return {
     ok: true,
@@ -123,6 +162,36 @@ export function defineRoom(input: DefineRoomInput): MutationResult {
     allFindings: after,
     findingSummary: summariseFindings(after),
   };
+}
+
+/**
+ * Shopper-facing room edit. Creates the room when the studio is empty, or
+ * updates name/size while keeping openings, obstructions, and furniture.
+ */
+export function patchRoom(input: PatchRoomInput): MutationResult {
+  const state = plannerState();
+  const room = state.room;
+  if (!room) {
+    if (input.widthMm === undefined || input.depthMm === undefined) {
+      return missingRoom();
+    }
+    return defineRoom({
+      name: input.name,
+      widthMm: input.widthMm,
+      depthMm: input.depthMm,
+      source: input.source ?? "user",
+    });
+  }
+
+  return defineRoom({
+    name: input.name ?? room.name,
+    widthMm: input.widthMm ?? room.widthMm,
+    depthMm: input.depthMm ?? room.depthMm,
+    openings: room.openings,
+    obstructions: room.obstructions,
+    keepPlacements: true,
+    source: input.source ?? "user",
+  });
 }
 
 export interface PlaceItemInput {
